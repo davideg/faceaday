@@ -80,7 +80,7 @@
               var num_files = faces_files.length;
               var file_name;
               for (var i = 0; i < num_files; i++) {
-                file_name = faces_files[i]["download_url"];
+                file_name = faces_files[i]["path"];
                 if (file_name.slice(-3) == "jpg")
                 {
                   face_collection.push(file_name);
