@@ -42,6 +42,7 @@
   var face_collection = new Array();
   var GET_FACES_FILES = "https://raw.githubusercontent.com/davideg/faceaday/master/faces/.face_files";
   var GET_FACES_URL = "https://api.github.com/repos/davideg/faceaday/contents/faces";
+  var FACE_FILE_URL = "https://media.githubusercontent.com/media/davideg/faceaday/gh-pages/";
   var face_index;
   
   function getFaces()
@@ -83,7 +84,7 @@
                 file_name = faces_files[i]["path"];
                 if (file_name.slice(-3) == "jpg")
                 {
-                  face_collection.push(file_name);
+                  face_collection.push(FACE_FILE_URL + file_name);
                 }
               }
               loadFace();
