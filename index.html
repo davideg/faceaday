@@ -1,0 +1,155 @@
+<html>
+<head>
+  <title>Face A Day</title>
+  <style type="text/css">
+  div {display:block;}
+  div#facecontainer {background-image: url(resources/loader.gif);
+                     background-repeat: no-repeat;
+                     background-position: center center;
+                     height: 625px
+                     /*padding: 400px;*/}
+  </style>
+  <script type="text/javascript">
+
+  document.onkeydown = function(e)
+  {
+    var evnt = e ? e : window.event; // IE uses window.event
+    var keycode = evnt.keyCode;
+    if(keycode == 37) // if key is left
+    {
+      prevFace();
+    }
+    else if(keycode == 39) // if key is right
+    {
+      nextFace();
+    }
+  }
+
+  document.onkeypress = function(e)
+  {
+    var evnt = e ? e : window.event; // IE uses window.event
+    var code = evnt.charCode ? evnt.charCode : evnt.keyCode;
+    if(code == 107 || code == 112) // if key is 'k' or 'p' 
+    {
+      prevFace();
+    }
+    else if(code == 106 || code == 110) // if key is 'j' or 'n'
+    {
+      nextFace();
+    }
+  }
+
+  var face_collection = new Array();
+  var GET_FACES_FILES = "https://raw.githubusercontent.com/davideg/faceaday/master/faces/.face_files";
+  var GET_FACES_URL = "https://api.github.com/repos/davideg/faceaday/contents/faces";
+  var face_index;
+  
+  function getFaces()
+  {
+    var xmlhttp;
+    if (window.XMLHttpRequest)
+    {
+      xmlhttp = new XMLHttpRequest();
+    }
+    else if (window.ActiveXObject)
+    {
+      xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    else
+    {
+      // TODO: something more graceful
+      alert("Get a new browser!");
+    }
+
+    xmlhttp.onreadystatechange = function()
+    {
+      if(xmlhttp.readyState == 4)
+      {
+        if (xmlhttp.status == 200)
+        {
+          face_collection = JSON.parse(xmlhttp.responseText);
+          loadFace();
+        }
+        else if (xmlhttp.status == 404)
+        {
+          xmlhttp.onreadystatechange = function()
+          {
+            if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
+            {
+              var faces_files = JSON.parse(xmlhttp.responseText);
+              var num_files = faces_files.length;
+              var file_name;
+              for (var i = 0; i < num_files; i++) {
+                file_name = faces_files[i]["download_url"];
+                if (file_name.slice(-3) == "jpg")
+                {
+                  face_collection.push(file_name);
+                }
+              }
+              loadFace();
+            }
+            //TODO fail gracefully/safely
+          }
+          
+          xmlhttp.open('GET', GET_FACES_URL, true);
+          xmlhttp.send(null);
+        }
+      }
+    }
+  
+    xmlhttp.open('GET', GET_FACES_FILES, true);
+    xmlhttp.send(null);
+
+  }
+
+  function nextFace()
+  {
+    face_index = (face_index + 1) % face_collection.length;
+    loadFace();
+  }
+
+  function prevFace()
+  {
+    // decrements the face_index but wraps the index from 0 to face_collection.length - 1.
+    face_index = (face_index - 1 + face_collection.length) % face_collection.length;
+    loadFace();
+  }
+
+  function initFace()
+  {
+    if(face_collection.length <= 0)
+    {
+      getFaces();
+    }
+    face_index = 0;
+  }
+
+  function loadFace()
+  {
+    if(face_collection.length > 0)
+    {
+      document.getElementById("facecontainer").style.backgroundImage = 
+      "url(" + face_collection[face_index] + ")";
+    }
+  }
+
+  </script> 
+</head>
+<body onload="initFace()">
+  <div id="logo">
+    <img src="resources/faceaday_logo.png">
+  </div>
+  
+  <div id="subheader">
+    Welcome to a humble site dedicated to strange and exuberant face-making!
+  </div>
+  <div id="navigation">
+    <a href="#" onclick="prevFace(); return false;">Previous</a> <a href="#" onclick="nextFace(); return false;">Next</a>
+  </div>
+  <div id="facecontainer">
+  </div>
+  <div id="copyright">
+    &copy; 2016 David Ginsburg
+  </div>
+</body>
+</html>
